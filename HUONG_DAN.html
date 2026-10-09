@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn kiểm thử Giai đoạn 1 &amp; 2</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --primary: #1677ff;
+            --success: #16803c;
+            --warning: #9a6700;
+            --danger: #cf1322;
+            --border: #d9d9d9;
+            --surface: #f6f8fa;
+            --text: #1f2328;
+            --muted: #59636e;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: #ffffff;
+            color: var(--text);
+            font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        main { width: min(960px, calc(100% - 32px)); margin: 40px auto 80px; }
+        h1, h2, h3 { line-height: 1.25; }
+        h1 { margin-bottom: 8px; font-size: 34px; }
+        h2 { margin-top: 42px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        h3 { margin-top: 28px; }
+        .subtitle { margin-top: 0; color: var(--muted); }
+        .toc, .card, .notice {
+            margin: 20px 0;
+            padding: 18px 22px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .toc, .card { background: var(--surface); }
+        .notice { border-left: 5px solid var(--primary); }
+        .notice.warning { border-left-color: #faad14; background: #fffbe6; }
+        .notice.success { border-left-color: #52c41a; background: #f6ffed; }
+        .notice.danger { border-left-color: #ff4d4f; background: #fff2f0; }
+        code {
+            padding: 2px 5px;
+            border-radius: 4px;
+            background: #eff1f3;
+            font-family: Consolas, "Courier New", monospace;
+        }
+        pre {
+            overflow-x: auto;
+            padding: 16px;
+            border-radius: 8px;
+            background: #0d1117;
+            color: #e6edf3;
+            line-height: 1.45;
+        }
+        pre code { padding: 0; background: transparent; color: inherit; }
+        li { margin: 7px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 18px 0; }
+        th, td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
+        th { background: var(--surface); }
+        .ok { color: var(--success); font-weight: 700; }
+        .bad { color: var(--danger); font-weight: 700; }
+        a { color: var(--primary); }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Hướng dẫn kiểm thử Giai đoạn 1 &amp; 2</h1>
+    <p class="subtitle">CVAT Dataset &amp; Ground Truth + YOLO Evaluation</p>
+
+    <div class="notice warning">
+        <strong>Lưu ý:</strong> model <code>yolov8x.pt</code> đóng gói trong image được pretrained trên
+        COCO (80 class), không phải BDD100K. Có thể dùng model này để kiểm tra pipeline hoạt động,
+        nhưng metrics chỉ có ý nghĩa chính thức khi dùng model đã fine-tune đúng 10 class BDD100K.
+    </div>
+
+    <div class="toc">
+        <strong>Nội dung</strong>
+        <ol>
+            <li>Khởi động hệ thống</li>
+            <li>Tạo Task BDD100K</li>
+            <li>Kiểm thử Giai đoạn 1</li>
+            <li>Gán Ground Truth</li>
+            <li>Kiểm thử Giai đoạn 2</li>
+            <li>Kiểm tra kết quả và xử lý lỗi</li>
+        </ol>
+    </div>
+
+    <h2>1. Khởi động hệ thống</h2>
+    <p>Yêu cầu máy đã cài Docker Desktop và Docker Engine đang chạy.</p>
+
+    <h3>Máy mới clone project lần đầu</h3>
+    <pre><code>git clone &lt;repository-url&gt;
+cd cvat-UI
+docker compose up -d</code></pre>
+
+    <h3>Máy đã từng chạy phiên bản cũ</h3>
+    <pre><code>git pull
+docker compose pull
+docker compose up -d --force-recreate</code></pre>
+
+    <p>Kiểm tra container:</p>
+    <pre><code>docker compose ps</code></pre>
+    <p>Các container quan trọng như <code>cvat_server</code>, <code>cvat_ui</code> và
+        <code>cvat_db</code> phải có trạng thái <span class="ok">Up</span>.</p>
+
+    <p>Kiểm tra migration:</p>
+    <pre><code>docker exec cvat_server python manage.py showmigrations yolo_evaluation</code></pre>
+    <p>Kết quả mong đợi:</p>
+    <pre><code>yolo_evaluation
+ [X] 0001_initial</code></pre>
+
+    <p>Kiểm tra model đã có trong custom image:</p>
+    <pre><code>docker exec cvat_server ls -lh /opt/cvat/evaluation-data/models/yolov8x.pt</code></pre>
+
+    <h2>2. Tạo Task BDD100K</h2>
+    <ol>
+        <li>Mở <a href="http://localhost:8080/tasks/create">http://localhost:8080/tasks/create</a>.</li>
+        <li>Đặt tên Task, ví dụ <code>BDD100K Evaluation Test</code>.</li>
+        <li>Upload ảnh từ thư mục <code>bdd100k_samples</code>.</li>
+        <li>Trong phần Labels, chọn chế độ Raw và paste JSON bên dưới.</li>
+    </ol>
+
+    <pre><code>[
+  {"name":"pedestrian","color":"#ef5350","type":"rectangle","attributes":[]},
+  {"name":"rider","color":"#ab47bc","type":"rectangle","attributes":[]},
+  {"name":"car","color":"#5c6bc0","type":"rectangle","attributes":[]},
+  {"name":"truck","color":"#29b6f6","type":"rectangle","attributes":[]},
+  {"name":"bus","color":"#26a69a","type":"rectangle","attributes":[]},
+  {"name":"train","color":"#66bb6a","type":"rectangle","attributes":[]},
+  {"name":"motorcycle","color":"#d4e157","type":"rectangle","attributes":[]},
+  {"name":"bicycle","color":"#ffa726","type":"rectangle","attributes":[]},
+  {"name":"traffic light","color":"#8d6e63","type":"rectangle","attributes":[]},
+  {"name":"traffic sign","color":"#78909c","type":"rectangle","attributes":[]}
+]</code></pre>
+
+    <div class="notice">
+        Thứ tự label quyết định class ID từ 0 đến 9. Không sắp xếp lại nếu model BDD100K của nhóm
+        cũng được train theo thứ tự này.
+    </div>
+
+    <h2>3. Kiểm thử Giai đoạn 1</h2>
+    <p>Mở trang chi tiết Task, ví dụ:</p>
+    <pre><code>http://localhost:8080/tasks/1</code></pre>
+    <p>Không mở trang <code>/tasks/1/jobs/1</code>, vì đó là màn hình annotation.</p>
+
+    <ol>
+        <li>Nhấn <strong>Dataset &amp; Evaluation</strong>.</li>
+        <li>Chọn <strong>Random uniform</strong>.</li>
+        <li>Nhập <strong>Number of frames</strong>: <code>5</code>.</li>
+        <li>Nhập <strong>Random seed</strong>: <code>42</code>.</li>
+        <li>Nhập metadata điều kiện.</li>
+    </ol>
+
+    <pre><code>{
+  "dataset": "BDD100K",
+  "split": "test",
+  "weather": "mixed",
+  "scene": "city street",
+  "time": "daytime"
+}</code></pre>
+
+    <p>Nhấn <strong>Create Ground Truth dataset</strong>.</p>
+    <div class="notice success">
+        Thành công khi trang hiển thị <code>GT Job #... — 5 frames</code> và Task xuất hiện Job có
+        nhãn <strong>Ground truth</strong>.
+    </div>
+
+    <h3>Ý nghĩa Random seed</h3>
+    <p>Cùng Task, số frame và seed sẽ tạo cùng tập frame. Đổi seed thường tạo tập frame khác.</p>
+    <pre><code>Seed 42  → [1, 4, 8]
+Seed 100 → [0, 5, 7]
+Seed 42  → [1, 4, 8]</code></pre>
+
+    <h2>4. Gán Ground Truth</h2>
+    <ol>
+        <li>Quay lại trang Task.</li>
+        <li>Mở Job có nhãn <strong>Ground truth</strong>.</li>
+        <li>Vẽ bounding box và chọn đúng label cho tất cả đối tượng cần đánh giá.</li>
+        <li>Kiểm tra đủ tất cả frame.</li>
+        <li>Nhấn <strong>Save</strong>.</li>
+    </ol>
+
+    <div class="notice warning">
+        Ground Truth phải được kiểm tra thủ công và chính xác. Annotation sai sẽ làm mAP, Precision,
+        Recall và confusion matrix sai theo.
+    </div>
+
+    <h2>5. Kiểm thử Giai đoạn 2</h2>
+    <p>Mở lại trang <strong>Dataset &amp; Evaluation</strong> và nhập:</p>
+
+    <table>
+        <thead><tr><th>Trường</th><th>Giá trị kiểm thử</th><th>Ý nghĩa</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>Model path</td>
+                <td><code>/opt/cvat/evaluation-data/models/yolov8x.pt</code></td>
+                <td>Model YOLO được đánh giá</td>
+            </tr>
+            <tr><td>Confidence</td><td><code>0.25</code></td><td>Loại prediction có độ tin cậy thấp hơn 25%</td></tr>
+            <tr><td>IoU</td><td><code>0.5</code></td><td>Ngưỡng chồng lấp dùng trong validation/NMS</td></tr>
+        </tbody>
+    </table>
+
+    <p>Nhấn <strong>Run evaluation on Ground Truth</strong>. Backend sẽ tự động:</p>
+    <ol>
+        <li>Export Ground Truth Job sang định dạng Ultralytics YOLO Detection.</li>
+        <li>Chạy validation và inference trên đúng các frame GT.</li>
+        <li>Tính mAP50, mAP50–95, Precision, Recall và confusion matrix.</li>
+        <li>Lưu bbox, class ID, confidence và tên ảnh của prediction.</li>
+        <li>Xóa dataset tạm sau khi hoàn tất.</li>
+    </ol>
+
+    <p>YOLOv8x chạy bằng CPU có thể mất vài phút. Không nhấn chạy nhiều lần trong khi request trước
+        vẫn đang xử lý.</p>
+
+    <h2>6. Kiểm tra kết quả</h2>
+    <p>Run thành công cần có:</p>
+    <ul>
+        <li>Status: <span class="ok">completed</span></li>
+        <li>mAP50 là giá trị số</li>
+        <li>Precision là giá trị số</li>
+        <li>Recall là giá trị số</li>
+    </ul>
+
+    <p>Kiểm tra metrics trực tiếp:</p>
+    <pre><code>docker exec cvat_server python manage.py shell -c "from cvat.apps.yolo_evaluation.models import EvaluationRun; r=EvaluationRun.objects.latest('id'); print(r.status); print(r.metrics); print(r.error)"</code></pre>
+
+    <p>Kiểm tra prediction:</p>
+    <pre><code>docker exec cvat_server python manage.py shell -c "from cvat.apps.yolo_evaluation.models import EvaluationRun; r=EvaluationRun.objects.latest('id'); print('Images:', len(r.predictions)); print(r.predictions[:1])"</code></pre>
+
+    <h2>7. Xử lý lỗi thường gặp</h2>
+    <table>
+        <thead><tr><th>Lỗi</th><th>Cách kiểm tra</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>No installed app with label <code>yolo_evaluation</code></td>
+                <td>Chạy <code>docker compose pull</code> rồi recreate container.</td>
+            </tr>
+            <tr>
+                <td>Không thấy nút Dataset &amp; Evaluation</td>
+                <td>Mở trang <code>/tasks/{id}</code>, hard refresh bằng Ctrl+Shift+R.</td>
+            </tr>
+            <tr>
+                <td>Model path does not exist</td>
+                <td>Kiểm tra model bằng lệnh <code>ls</code> ở bước 1.</td>
+            </tr>
+            <tr>
+                <td>Run có status failed</td>
+                <td>Xem trường Error trên dashboard và log backend.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <pre><code>docker logs cvat_server --tail 300</code></pre>
+
+    <div class="notice danger">
+        Không sử dụng metrics từ <code>yolov8x.pt</code> COCO làm kết luận chính thức cho BDD100K.
+        Để đánh giá đúng, thay model path bằng file <code>best.pt</code> đã fine-tune trên cùng 10 class
+        và cùng thứ tự class của Task.
+    </div>
+</main>
+</body>
+</html>
