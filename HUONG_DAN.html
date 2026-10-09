@@ -110,7 +110,8 @@ docker compose up -d --force-recreate</code></pre>
     <pre><code>docker exec cvat_server python manage.py showmigrations yolo_evaluation</code></pre>
     <p>Kết quả mong đợi:</p>
     <pre><code>yolo_evaluation
- [X] 0001_initial</code></pre>
+ [X] 0001_initial
+ [X] 0002_dataset_validation</code></pre>
 
     <p>Kiểm tra model đã có trong custom image:</p>
     <pre><code>docker exec cvat_server ls -lh /opt/cvat/evaluation-data/models/yolov8x.pt</code></pre>
@@ -187,6 +188,15 @@ Seed 42  → [1, 4, 8]</code></pre>
         Ground Truth phải được kiểm tra thủ công và chính xác. Annotation sai sẽ làm mAP, Precision,
         Recall và confusion matrix sai theo.
     </div>
+
+    <h3>Validate Ground Truth</h3>
+    <ol>
+        <li>Quay lại <strong>Dataset &amp; Evaluation</strong>.</li>
+        <li>Nhấn <strong>Validate Ground Truth</strong>.</li>
+        <li>Xem danh sách lỗi và nhấn <strong>Open frame</strong> để mở đúng frame cần sửa.</li>
+        <li>Sau khi sửa và Save annotation, nhấn <strong>Validate Ground Truth</strong> lại.</li>
+    </ol>
+    <p><code>blocked</code> chặn Giai đoạn 2; <code>warning</code> vẫn cho phép chạy evaluation.</p>
 
     <h2>5. Kiểm thử Giai đoạn 2</h2>
     <p>Mở lại trang <strong>Dataset &amp; Evaluation</strong> và nhập:</p>

@@ -5,11 +5,24 @@ from cvat.apps.engine.models import Job, Task
 
 
 class DatasetConfiguration(models.Model):
+    class ValidationStatus(models.TextChoices):
+        NOT_VALIDATED = "not_validated", "Not validated"
+        PASSED = "passed", "Passed"
+        WARNING = "warning", "Warning"
+        BLOCKED = "blocked", "Blocked"
+
     task = models.OneToOneField(Task, on_delete=models.CASCADE, related_name="evaluation_dataset")
     ground_truth_job = models.ForeignKey(Job, null=True, blank=True, on_delete=models.SET_NULL)
     sampling_method = models.CharField(max_length=32)
     sampled_frames = models.JSONField(default=list)
     conditions = models.JSONField(default=dict)
+    validation_status = models.CharField(
+        max_length=16,
+        choices=ValidationStatus.choices,
+        default=ValidationStatus.NOT_VALIDATED,
+    )
+    validation_result = models.JSONField(default=dict)
+    validated_date = models.DateTimeField(null=True, blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     updated_date = models.DateTimeField(auto_now=True)
 
@@ -32,4 +45,3 @@ class EvaluationRun(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     created_date = models.DateTimeField(auto_now_add=True)
     finished_date = models.DateTimeField(null=True, blank=True)
-

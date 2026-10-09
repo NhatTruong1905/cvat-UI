@@ -26,8 +26,25 @@ interface EvaluationRun {
 }
 
 interface Overview {
-    dataset: null | { ground_truth_job_id: number; sampled_frames: number[]; conditions: object };
+    dataset: null | {
+        ground_truth_job_id: number;
+        sampled_frames: number[];
+        conditions: object;
+        validation_status: 'not_validated' | 'passed' | 'warning' | 'blocked';
+        validation_result: {
+            summary?: { frames_checked: number; boxes_checked: number; blockers: number; warnings: number };
+            issues?: GroundTruthIssue[];
+        };
+    };
     runs: EvaluationRun[];
+}
+
+interface GroundTruthIssue {
+    frame: number;
+    severity: 'blocker' | 'warning';
+    rule: string;
+    message: string;
+    shape_id?: number;
 }
 
 export default function YoloEvaluationPage(): JSX.Element {
@@ -66,6 +83,13 @@ export default function YoloEvaluationPage(): JSX.Element {
         }
     };
 
+    const validationStatus = overview.dataset?.validation_status || 'not_validated';
+    const validationSummary = overview.dataset?.validation_result?.summary;
+    const validationIssues = overview.dataset?.validation_result?.issues || [];
+    const canEvaluate = validationStatus === 'passed' || validationStatus === 'warning';
+    const validationColor = validationStatus === 'passed' ?
+        'green' : validationStatus === 'warning' ? 'orange' : 'red';
+
     return (
         <Row justify='center' className='cvat-yolo-evaluation-page'>
             <Col span={22} xl={18}>
@@ -81,11 +105,37 @@ export default function YoloEvaluationPage(): JSX.Element {
                     <Col xs={24} lg={12}>
                         <Card title='Phase 1 — Dataset & Ground Truth'>
                             {overview.dataset && (
-                                <Alert
-                                    type='success'
-                                    showIcon
-                                    message={`GT Job #${overview.dataset.ground_truth_job_id} — ${overview.dataset.sampled_frames.length} frames`}
-                                />
+                                <Space direction='vertical' style={{ width: '100%', marginBottom: 16 }}>
+                                    <Alert
+                                        type='success'
+                                        showIcon
+                                        message={`GT Job #${overview.dataset.ground_truth_job_id} — ${overview.dataset.sampled_frames.length} frames`}
+                                    />
+                                    <Space>
+                                        <Button
+                                            loading={loading}
+                                            onClick={() => submit(`${endpoint}/validate-ground-truth`, {})}
+                                        >
+                                            Validate Ground Truth
+                                        </Button>
+                                        <Button
+                                            onClick={() => history.push(
+                                                `/tasks/${tid}/jobs/${overview.dataset?.ground_truth_job_id}`,
+                                            )}
+                                        >
+                                            Open GT Job
+                                        </Button>
+                                        <Tag color={validationColor}>{validationStatus}</Tag>
+                                    </Space>
+                                    {validationSummary && (
+                                        <Alert
+                                            type={validationStatus === 'blocked' ?
+                                                'error' : validationStatus === 'warning' ? 'warning' : 'success'}
+                                            showIcon
+                                            message={`${validationSummary.frames_checked} frames, ${validationSummary.boxes_checked} boxes, ${validationSummary.blockers} blockers, ${validationSummary.warnings} warnings`}
+                                        />
+                                    )}
+                                </Space>
                             )}
                             <Form
                                 layout='vertical'
@@ -152,7 +202,7 @@ export default function YoloEvaluationPage(): JSX.Element {
                                     htmlType='submit'
                                     type='primary'
                                     loading={loading}
-                                    disabled={!overview.dataset}
+                                    disabled={!canEvaluate}
                                 >
                                     Run evaluation on Ground Truth
                                 </Button>
@@ -160,6 +210,38 @@ export default function YoloEvaluationPage(): JSX.Element {
                         </Card>
                     </Col>
                 </Row>
+                {overview.dataset && validationIssues.length > 0 && (
+                    <Card title='Ground Truth validation issues' className='cvat-yolo-evaluation-history'>
+                        <Table
+                            rowKey={(issue, index) => `${issue.frame}-${issue.rule}-${issue.shape_id || index}`}
+                            dataSource={validationIssues}
+                            pagination={{ pageSize: 20 }}
+                            columns={[
+                                {
+                                    title: 'Severity',
+                                    dataIndex: 'severity',
+                                    render: (value) => <Tag color={value === 'blocker' ? 'red' : 'orange'}>{value}</Tag>,
+                                },
+                                { title: 'Rule', dataIndex: 'rule' },
+                                { title: 'Message', dataIndex: 'message' },
+                                {
+                                    title: 'Frame',
+                                    dataIndex: 'frame',
+                                    render: (frame) => (
+                                        <Button
+                                            type='link'
+                                            onClick={() => history.push(
+                                                `/tasks/${tid}/jobs/${overview.dataset?.ground_truth_job_id}?frame=${frame}`,
+                                            )}
+                                        >
+                                            Open frame {frame}
+                                        </Button>
+                                    ),
+                                },
+                            ]}
+                        />
+                    </Card>
+                )}
                 <Card title='Evaluation history' className='cvat-yolo-evaluation-history'>
                     <Table rowKey='id' dataSource={overview.runs} pagination={false} columns={[
                         { title: 'Run', dataIndex: 'id', render: (id) => `#${id}` },

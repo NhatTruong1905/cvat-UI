@@ -8,7 +8,9 @@ from rest_framework.views import APIView
 from cvat.apps.engine.models import Job, JobType, Task
 from cvat.apps.engine.permissions import TaskPermission
 from cvat.apps.engine.serializers import JobWriteSerializer
+from cvat.apps.dataset_manager.task import get_job_data
 
+from .linting import validate_ground_truth
 from .models import DatasetConfiguration, EvaluationRun
 from .serializers import DatasetCreateSerializer, EvaluationCreateSerializer
 from .services import run_ultralytics
@@ -40,6 +42,9 @@ class DatasetView(APIView):
                     "sampling_method": config.sampling_method,
                     "sampled_frames": config.sampled_frames,
                     "conditions": config.conditions,
+                    "validation_status": config.validation_status,
+                    "validation_result": config.validation_result,
+                    "validated_date": config.validated_date,
                     "updated_date": config.updated_date,
                 },
                 "runs": [
@@ -82,12 +87,44 @@ class DatasetView(APIView):
                 "sampled_frames": sampled_frames,
                 "conditions": data["conditions"],
                 "created_by": request.user,
+                "validation_status": DatasetConfiguration.ValidationStatus.NOT_VALIDATED,
+                "validation_result": {},
+                "validated_date": None,
             },
         )
         return Response(
             {"ground_truth_job_id": job.id, "sampled_frames": config.sampled_frames},
             status=status.HTTP_201_CREATED,
         )
+
+
+class GroundTruthValidationView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, task_id):
+        task = get_task(request, task_id)
+        config = DatasetConfiguration.objects.filter(task=task).first()
+        if config is None or config.ground_truth_job is None:
+            return Response(
+                {"error": "Create the Ground Truth dataset before validating it"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        labels = {label.id: label.name for label in task.get_labels()}
+        image_sizes = {
+            image.frame: (image.width, image.height)
+            for image in task.data.images.filter(frame__in=config.sampled_frames)
+        }
+        result = validate_ground_truth(
+            get_job_data(config.ground_truth_job_id),
+            labels,
+            image_sizes,
+            config.sampled_frames,
+        )
+        config.validation_status = result["status"]
+        config.validation_result = result
+        config.validated_date = timezone.now()
+        config.save(update_fields=["validation_status", "validation_result", "validated_date", "updated_date"])
+        return Response(result)
 
 
 class EvaluationView(APIView):
@@ -101,6 +138,16 @@ class EvaluationView(APIView):
         if config is None or config.ground_truth_job is None:
             return Response(
                 {"error": "Create the Ground Truth dataset before running evaluation"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if config.validation_status == DatasetConfiguration.ValidationStatus.NOT_VALIDATED:
+            return Response(
+                {"error": "Validate the Ground Truth annotations before running evaluation"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if config.validation_status == DatasetConfiguration.ValidationStatus.BLOCKED:
+            return Response(
+                {"error": "Ground Truth validation has blocker errors. Fix and validate again"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         evaluation_options = dict(serializer.validated_data)
