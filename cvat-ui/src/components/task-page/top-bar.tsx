@@ -6,7 +6,7 @@
 import React from 'react';
 import { useHistory } from 'react-router';
 import { Row, Col } from 'antd/lib/grid';
-import { LeftOutlined, MoreOutlined } from '@ant-design/icons';
+import { ExperimentOutlined, LeftOutlined, MoreOutlined } from '@ant-design/icons';
 import Button from 'antd/lib/button';
 import Text from 'antd/lib/typography/Text';
 import TaskActionsComponent from 'components/tasks-page/actions-menu';
@@ -48,6 +48,13 @@ export default function DetailsComponent(props: DetailsComponentProps): JSX.Elem
                 )}
             </Col>
             <Col>
+                <Button
+                    icon={<ExperimentOutlined />}
+                    onClick={() => history.push(`/tasks/${taskInstance.id}/yolo-evaluation`)}
+                    style={{ marginRight: 8 }}
+                >
+                    Dataset & Evaluation
+                </Button>
                 <TaskActionsComponent
                     taskInstance={taskInstance}
                     onUpdateTask={onUpdateTask}

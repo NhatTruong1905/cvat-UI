@@ -1,0 +1,2 @@
+ultralytics>=8.3,<9
+pi-heif>=1.1,<2

@@ -116,6 +116,7 @@ RUN apt-get update && \
         curl \
         git \
         libgl1 \
+        libglib2.0-0 \
         libgomp1 \
         libldap2 \
         libmp3lame0 \
@@ -163,6 +164,14 @@ ARG PIP_DISABLE_PIP_VERSION_CHECK=1
 RUN --mount=type=bind,from=build-image,source=/tmp/wheelhouse,target=/mnt/wheelhouse \
     --mount=type=bind,from=build-image-av,source=/tmp/wheelhouse,target=/mnt/wheelhouse-av \
     python -m pip install --no-index /mnt/wheelhouse/*.whl /mnt/wheelhouse-av/*.whl
+
+COPY cvat/apps/yolo_evaluation/requirements.txt /tmp/yolo-evaluation-requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip/http-v2 \
+    python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    python -m pip install -r /tmp/yolo-evaluation-requirements.txt && \
+    mkdir -p /opt/cvat/evaluation-data/models && \
+    YOLO_CONFIG_DIR=/tmp/ultralytics python -c \
+        "from ultralytics import YOLO; model = YOLO('yolov8x.pt'); model.save('/opt/cvat/evaluation-data/models/yolov8x.pt')"
 
 ENV NUMPROCS=1
 COPY --from=build-image-av /opt/ffmpeg/lib /usr/lib
