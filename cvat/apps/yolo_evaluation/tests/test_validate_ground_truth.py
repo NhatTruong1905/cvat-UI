@@ -1,9 +1,9 @@
 from django.test import SimpleTestCase
 
-from cvat.apps.yolo_evaluation.linting import validate_ground_truth
+from cvat.apps.yolo_evaluation.validate_ground_truth import validate_ground_truth
 
 
-class GroundTruthLintingTest(SimpleTestCase):
+class GroundTruthValidationTest(SimpleTestCase):
     labels = {1: "car", 2: "rider", 3: "bicycle", 4: "custom"}
     image_sizes = {0: (100, 100), 1: (100, 100)}
 

@@ -10,7 +10,7 @@ from cvat.apps.engine.permissions import TaskPermission
 from cvat.apps.engine.serializers import JobWriteSerializer
 from cvat.apps.dataset_manager.task import get_job_data
 
-from .linting import validate_ground_truth
+from .validate_ground_truth import validate_ground_truth
 from .models import DatasetConfiguration, EvaluationRun
 from .serializers import DatasetCreateSerializer, EvaluationCreateSerializer
 from .services import run_ultralytics
