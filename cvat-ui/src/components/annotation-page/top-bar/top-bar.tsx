@@ -239,6 +239,8 @@ export default function AnnotationTopBarComponent(props: Props): JSX.Element {
                 jobInstance={jobInstance}
                 annotationFilters={annotationFilters}
                 initialOpenGuide={initialOpenGuide}
+                currentFrame={frameNumber}
+                onSelectQCFrame={onInputChange}
                 changeWorkspace={changeWorkspace}
                 showStatistics={showStatistics}
                 showFilters={showFilters}

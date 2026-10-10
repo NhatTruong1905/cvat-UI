@@ -1,0 +1,467 @@
+{
+  "source": "BDD100K validation split",
+  "image_count": 50,
+  "annotation_count": 1050,
+  "groups": {
+    "overcast_day_city": [
+      {
+        "filename": "b1c66a42-6f7d68ca.jpg",
+        "description": "On an overcast daytime, a city street filled with lots of traffic next to tall buildings.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1ceb32e-a106591d.jpg",
+        "description": "On an overcast city street filled with lots of traffic during daytime,",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d968b9-563405f4.jpg",
+        "description": "The sun was hidden beneath an overcast sky as a silver van drove down a city street in the daytime.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1e0c01d-dd9e6e2f.jpg",
+        "description": "A truck driving down a highway next to a bridge on an overcast, city street, in the daytime.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1ff4656-ebcfeb35.jpg",
+        "description": "A car driving down an overcast city street next to a motorcycle during daytime.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b22f385b-5d7e5202.jpg",
+        "description": "The overcast city street filled with traffic next to tall buildings was alive with activity during the daytime.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b24d283f-33783d1b.jpg",
+        "description": "A bunch of cars that are sitting in the overcast city street on a daytime.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b251064f-5f6b663e.jpg",
+        "description": "A car driving down a city street, overcast with forest, during the daytime.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b2576c8c-2de20b8a.jpg",
+        "description": "On an overcast residential street during the daytime, there was a city street filled with lots of parked cars.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b25fb716-78d8d49b.jpg",
+        "description": "A car drove down a city street, passing by a tall building, on an overcast daytime.",
+        "conditions": {
+          "weather": "overcast",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      }
+    ],
+    "clear_night_city": [
+      {
+        "filename": "b1ca2e5d-84cf9134.jpg",
+        "description": "A clear city street filled with lots of traffic at night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1ca8418-84a133a0.jpg",
+        "description": "A car stopped at a green light on a clear city street night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1cd1e94-26dd524f.jpg",
+        "description": "A car was driving clearly down a city street at night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1ceb32e-3f481b43.jpg",
+        "description": "A parking garage filled with lots of parked cars filled the clear city street, all illuminated under a blanket of night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d10d08-743fd86c.jpg",
+        "description": "A white car was driving down a clear city street at night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d22449-15fb948f.jpg",
+        "description": "A car driving clear down a dark city street at night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d3907b-2278601b.jpg",
+        "description": "On a clear city street at night, the traffic lights blink continuously.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d4b62c-d9805029.jpg",
+        "description": "A car drove down a clear city street on a moonlit night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d8735d-eee9f184.jpg",
+        "description": "The clear city street at night was filled with lots of traffic.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1db7e22-cfa74dc3.jpg",
+        "description": "A car stopped at a green light on a clear city street at night.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "night",
+          "scene": "city street"
+        }
+      }
+    ],
+    "rainy_day_city": [
+      {
+        "filename": "b1cac6a7-04e33135.jpg",
+        "description": "A white car drove down a rainy city street in the daytime.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1e1a7b8-b397c445.jpg",
+        "description": "A couple of cars are parked along the rainy city street on this daytime.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b263f57d-1ccf6e51.jpg",
+        "description": "On a rainy day, a view of a city street from inside a car passes by in the daytime.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b266db29-12bf52fa.jpg",
+        "description": "A no right turn sign on a city street, spotted during a rainy, residential daytime.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b266db29-29fa8335.jpg",
+        "description": "A man standing next to a white car on a rainy city street on a bright daytime.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b266db29-403143cc.jpg",
+        "description": "On a rainy, city street during the daytime, a car was driving down, next to tall buildings.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b266db29-4d22b355.jpg",
+        "description": "From a car window, a view of a rainy city street bathed in daytime light was visible.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b266db29-c518f15d.jpg",
+        "description": "A car drove slowly down a rainy city street during the daytime, passing tall buildings.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b266db29-da0abce7.jpg",
+        "description": "On a rainy city street filled with lots of traffic next to tall buildings during daytime,",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b26cfcdc-10346684.jpg",
+        "description": "On a rainy city street, a row of cars were parked on the side of the road during daytime.",
+        "conditions": {
+          "weather": "rainy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      }
+    ],
+    "snowy_day_city": [
+      {
+        "filename": "b1d0a191-03dcecc2.jpg",
+        "description": "A van was driving down a snowy city street in the daytime, next to tall buildings.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d0a191-06deb55d.jpg",
+        "description": "A car drove down a snowy city street during the daytime, next to tall buildings.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d0a191-28f0e779.jpg",
+        "description": "A car drove down a snowy city street during the daytime.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d0a191-2ed2269e.jpg",
+        "description": "On a snowy city street filled with lots of traffic during the daytime,",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d0a191-5490450b.jpg",
+        "description": "A snowy, residential city street filled with lots of daytime traffic next to tall buildings.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d0a191-65deaeef.jpg",
+        "description": "A snowy city street filled with lots of traffic during the daytime.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b2046bcf-8bc6a044.jpg",
+        "description": "On a snowy city street during the daytime, there was lots of traffic passing in front of tall buildings.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b204a5c1-05981158.jpg",
+        "description": "On a snowy city street, filled with traffic next to tall buildings, the daytime sun lit up the scene.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b204a5c1-fa3d5b88.jpg",
+        "description": "A car was driving down a snowy city street during the daytime.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b2490dcb-7469cbe8.jpg",
+        "description": "A man standing on the corner of a snowy city street in the daytime.",
+        "conditions": {
+          "weather": "snowy",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      }
+    ],
+    "clear_day_city": [
+      {
+        "filename": "b1d10d08-c35503b8.jpg",
+        "description": "On a clear daytime city street, lots of traffic filled the air under the bridge.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1d7b3ac-5744370e.jpg",
+        "description": "A car driving down a city street in the clear daytime light next to a red building.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1dac7f7-6b2e0382.jpg",
+        "description": "A car driving down a clear city street in the daytime next to tall buildings.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1dce572-c6a8cb5e.jpg",
+        "description": "I had a clear view of a residential city street during the daytime from a car.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1f0efd9-e900c6e5.jpg",
+        "description": "A car drove slowly down the clear city street in the bright daytime.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b1f4491b-97465266.jpg",
+        "description": "A car stopped at a red light on a clear city street in the daytime.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b202cae2-f46c74a6.jpg",
+        "description": "The bright daytime sun shined down on the clear city street filled with lots of traffic next to tall buildings.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b20b69d2-7767e6b6.jpg",
+        "description": "A car driving down a clear city street in the daytime, next to a forest.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b20ff95c-b9444127.jpg",
+        "description": "The sun shone brightly on a car driving down a clear city street in the daytime next to tall buildings.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      },
+      {
+        "filename": "b2208b0f-2796a692.jpg",
+        "description": "A car drove down a clear city street during daytime, next to tall buildings.",
+        "conditions": {
+          "weather": "clear",
+          "timeofday": "daytime",
+          "scene": "city street"
+        }
+      }
+    ]
+  }
+}

@@ -2,7 +2,8 @@ FROM node:lts-slim AS cvat-ui
 
 ENV TERM=xterm \
     LANG='C.UTF-8'  \
-    LC_ALL='C.UTF-8'
+    LC_ALL='C.UTF-8' \
+    NODE_OPTIONS='--max-old-space-size=4096'
 
 # Install dependencies
 RUN npm install -g corepack

@@ -1,0 +1,12 @@
+[
+  {"name":"pedestrian","type":"rectangle","attributes":[]},
+  {"name":"rider","type":"rectangle","attributes":[]},
+  {"name":"car","type":"rectangle","attributes":[]},
+  {"name":"truck","type":"rectangle","attributes":[]},
+  {"name":"bus","type":"rectangle","attributes":[]},
+  {"name":"train","type":"rectangle","attributes":[]},
+  {"name":"motorcycle","type":"rectangle","attributes":[]},
+  {"name":"bicycle","type":"rectangle","attributes":[]},
+  {"name":"traffic light","type":"rectangle","attributes":[]},
+  {"name":"traffic sign","type":"rectangle","attributes":[]}
+]

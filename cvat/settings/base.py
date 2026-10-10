@@ -148,7 +148,7 @@ INSTALLED_APPS = [
     "cvat.apps.consensus",
     "cvat.apps.access_tokens",
     "cvat.apps.growth",
-    "cvat.apps.yolo_evaluation",
+    "cvat.apps.model_assisted_qc",
 ]
 
 AUTH_USER_MODEL = "iam.User"

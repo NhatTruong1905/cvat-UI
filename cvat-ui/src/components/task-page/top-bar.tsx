@@ -50,10 +50,10 @@ export default function DetailsComponent(props: DetailsComponentProps): JSX.Elem
             <Col>
                 <Button
                     icon={<ExperimentOutlined />}
-                    onClick={() => history.push(`/tasks/${taskInstance.id}/yolo-evaluation`)}
+                    onClick={() => history.push(`/tasks/${taskInstance.id}/model-assisted-qc`)}
                     style={{ marginRight: 8 }}
                 >
-                    Dataset & Evaluation
+                    Model-assisted QC
                 </Button>
                 <TaskActionsComponent
                     taskInstance={taskInstance}

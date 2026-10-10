@@ -1,276 +1,242 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hướng dẫn kiểm thử Giai đoạn 1 &amp; 2</title>
-    <style>
-        :root {
-            color-scheme: light;
-            --primary: #1677ff;
-            --success: #16803c;
-            --warning: #9a6700;
-            --danger: #cf1322;
-            --border: #d9d9d9;
-            --surface: #f6f8fa;
-            --text: #1f2328;
-            --muted: #59636e;
-        }
-
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            background: #ffffff;
-            color: var(--text);
-            font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        }
-        main { width: min(960px, calc(100% - 32px)); margin: 40px auto 80px; }
-        h1, h2, h3 { line-height: 1.25; }
-        h1 { margin-bottom: 8px; font-size: 34px; }
-        h2 { margin-top: 42px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-        h3 { margin-top: 28px; }
-        .subtitle { margin-top: 0; color: var(--muted); }
-        .toc, .card, .notice {
-            margin: 20px 0;
-            padding: 18px 22px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-        }
-        .toc, .card { background: var(--surface); }
-        .notice { border-left: 5px solid var(--primary); }
-        .notice.warning { border-left-color: #faad14; background: #fffbe6; }
-        .notice.success { border-left-color: #52c41a; background: #f6ffed; }
-        .notice.danger { border-left-color: #ff4d4f; background: #fff2f0; }
-        code {
-            padding: 2px 5px;
-            border-radius: 4px;
-            background: #eff1f3;
-            font-family: Consolas, "Courier New", monospace;
-        }
-        pre {
-            overflow-x: auto;
-            padding: 16px;
-            border-radius: 8px;
-            background: #0d1117;
-            color: #e6edf3;
-            line-height: 1.45;
-        }
-        pre code { padding: 0; background: transparent; color: inherit; }
-        li { margin: 7px 0; }
-        table { width: 100%; border-collapse: collapse; margin: 18px 0; }
-        th, td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; }
-        th { background: var(--surface); }
-        .ok { color: var(--success); font-weight: 700; }
-        .bad { color: var(--danger); font-weight: 700; }
-        a { color: var(--primary); }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hướng dẫn Model-assisted QC trên CVAT</title>
+  <style>
+    :root{--bg:#f3f6fb;--card:#fff;--ink:#172033;--muted:#607089;--line:#dce4ef;--blue:#1677ff;--green:#15803d;--orange:#b45309;--red:#cf1322;--dark:#111827}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 Inter,"Segoe UI",Arial,sans-serif}
+    header{padding:54px 22px;background:linear-gradient(125deg,#0f172a,#1d4ed8);color:#fff}header>div,main{max-width:1160px;margin:auto}
+    h1{margin:6px 0 12px;font-size:38px;line-height:1.18}h2{margin:0 0 16px;font-size:26px}h3{margin:24px 0 8px;font-size:19px}.lead{max-width:900px;color:#dbeafe;font-size:18px}.eyebrow{color:#93c5fd;font-weight:800;letter-spacing:.12em}
+    nav{position:sticky;top:0;z-index:20;padding:12px;text-align:center;background:#fff;border-bottom:1px solid var(--line)}nav a{margin:0 8px;color:var(--blue);font-weight:700;text-decoration:none}
+    main{padding:30px 18px 70px}section{margin-bottom:20px;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 6px 22px #0f172a0a}.phase{border-left:6px solid var(--blue)}
+    .badge{display:inline-block;margin-bottom:8px;padding:3px 9px;border-radius:999px;background:#e6f4ff;color:#0958d9;font-size:12px;font-weight:800}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}.mini{padding:15px;border:1px solid var(--line);border-radius:10px}
+    .info,.ok,.warn,.danger{margin:13px 0;padding:13px 15px;border-radius:9px}.info{background:#eaf3ff;color:#174f9c}.ok{background:#edf9f0;color:#14652f}.warn{background:#fff6df;color:#8a4b08}.danger{background:#ffeded;color:#9e2020}
+    code{padding:2px 5px;background:#e9eef6;border-radius:4px}pre{overflow:auto;padding:16px;background:var(--dark);color:#e5edf9;border-radius:10px;white-space:pre-wrap}pre code{padding:0;background:none}
+    table{width:100%;margin:14px 0;border-collapse:collapse}th,td{padding:10px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#eef3fa}li{margin:5px 0}.check li{list-style:"☐  "}.muted{color:var(--muted)}a{color:var(--blue)}footer{padding:25px;text-align:center;color:var(--muted)}
+  </style>
 </head>
 <body>
+<header><div>
+  <div class="eyebrow">MODEL-ASSISTED ANNOTATION QC</div>
+  <h1>Hướng dẫn cài đặt và kiểm thử từ Phase 1 đến Phase 6</h1>
+  <p class="lead">Phase 1 tạo Ground Truth, Phase 2 đánh giá YOLO, còn Phase 3–6 được tích hợp trực tiếp vào màn hình annotate qua QC Assistant và Frame Errors.</p>
+</div></header>
+<nav>
+  <a href="OVERVIEW.html">Tổng quan</a><a href="#start">Khởi động</a><a href="#task">Tạo Task</a><a href="#phase1">Phase 1</a><a href="#phase2">Phase 2</a><a href="#phase3-6">Phase 3–6</a><a href="#e2e">Test E2E</a><a href="#errors">Xử lý lỗi</a>
+</nav>
 <main>
-    <h1>Hướng dẫn kiểm thử Giai đoạn 1 &amp; 2</h1>
-    <p class="subtitle">CVAT Dataset &amp; Ground Truth + YOLO Evaluation</p>
+  <section>
+    <h2>1. Công cụ này làm gì?</h2>
+    <p>Công cụ dùng prediction của YOLO làm nguồn gợi ý để tìm annotation đáng nghi: vật thể có thể bị bỏ sót, object có thể bị gán sai class hoặc box do human tạo không được model hỗ trợ. Reviewer luôn là người đưa ra quyết định cuối cùng.</p>
+    <div class="danger"><strong>Không tự động sửa annotation:</strong> Confirm, Reject hoặc Resolved chỉ cập nhật trạng thái review. Công cụ không tự thêm, xóa, đổi class hay sửa bounding box trong CVAT.</div>
+    <pre><code>Ground Truth chính xác
+        ↓
+YOLO Evaluation trên tập GT
+        ↓
+Prediction đã lưu + annotation của job đang mở
+        ↓
+Matching theo IoU → phát hiện lỗi → xếp hạng rủi ro
+        ↓
+Annotator sửa thủ công → Save → reviewer xác nhận</code></pre>
+  </section>
 
-    <div class="notice warning">
-        <strong>Lưu ý:</strong> model <code>yolov8x.pt</code> đóng gói trong image được pretrained trên
-        COCO (80 class), không phải BDD100K. Có thể dùng model này để kiểm tra pipeline hoạt động,
-        nhưng metrics chỉ có ý nghĩa chính thức khi dùng model đã fine-tune đúng 10 class BDD100K.
+  <section id="start">
+    <h2>2. Khởi động hệ thống</h2>
+    <h3>Dùng image đã phát hành</h3>
+    <pre><code>cd D:\cvat-UI
+docker compose pull
+docker compose up -d --force-recreate
+docker compose ps</code></pre>
+    <p>Mở <a href="http://localhost:8080">http://localhost:8080</a>. Các container chính phải ở trạng thái <code>Up</code>.</p>
+    <h3>Kiểm tra backend và model</h3>
+    <pre><code>docker exec cvat_server python manage.py showmigrations yolo_evaluation
+docker exec cvat_server python -c "import ultralytics; print(ultralytics.__version__)"
+docker exec cvat_server sh -lc "ls -lh /opt/cvat/evaluation-data/models/yolov8x.pt"</code></pre>
+    <div class="info">Đường dẫn model nằm <strong>bên trong container backend</strong>: <code>/opt/cvat/evaluation-data/models/yolov8x.pt</code>. Không nhập đường dẫn Windows như <code>D:\models\...</code> vào giao diện.</div>
+  </section>
+
+  <section id="task">
+    <h2>3. Tạo Task BDD100K mẫu</h2>
+    <table>
+      <tr><th>Tài nguyên</th><th>Công dụng</th></tr>
+      <tr><td><code>bdd100k_examples/images/</code></td><td>50 ảnh dùng để tạo Task.</td></tr>
+      <tr><td><code>bdd100k_examples/labels.json</code></td><td>Danh sách label dạng Raw để dán vào CVAT.</td></tr>
+      <tr><td><code>bdd100k_examples/annotations_coco.zip</code></td><td>Annotation COCO mẫu để test nhanh.</td></tr>
+      <tr><td><code>bdd100k_examples/condition_splits/</code></td><td>Thông tin nhóm điều kiện môi trường.</td></tr>
+    </table>
+    <ol>
+      <li>Vào <strong>Tasks → Create a new task</strong>.</li>
+      <li>Đặt tên, ví dụ <code>BDD100K QC E2E</code>.</li>
+      <li>Trong Labels chọn <strong>Raw</strong>, dán nội dung của <code>labels.json</code>.</li>
+      <li>Upload toàn bộ ảnh trong <code>bdd100k_examples/images/</code>.</li>
+      <li>Nhấn tạo Task và chờ trạng thái xử lý hoàn tất.</li>
+    </ol>
+    <div class="warn">Taxonomy đang dùng BDD100K, ví dụ class <code>pedestrian</code>. Backend tự map prediction COCO <code>person</code> thành <code>pedestrian</code> trước khi so sánh.</div>
+  </section>
+
+  <section class="phase" id="phase1">
+    <span class="badge">PHASE 1</span><h2>Dataset &amp; Ground Truth</h2>
+    <ol>
+      <li>Mở Task.</li>
+      <li>Chọn <strong>Model-assisted QC</strong>.</li>
+      <li>Thiết lập sampling và metadata.</li>
+      <li>Nhấn <strong>Create Ground Truth Job</strong>.</li>
+    </ol>
+    <h3>Random uniform</h3>
+    <pre><code>Sampling method: Random uniform
+Number of frames: 50
+Random seed: 42</code></pre>
+    <p><strong>Random seed</strong> giúp cùng Task và cùng cấu hình luôn chọn lại cùng một tập frame. Đổi seed sẽ tạo thứ tự lấy mẫu khác.</p>
+    <h3>Manual frame list</h3>
+    <p>Chỉ nhập khi chọn phương pháp manual. Frame của CVAT bắt đầu từ <code>0</code>:</p>
+    <pre><code>0, 1, 10, 25, 49</code></pre>
+    <h3>Metadata môi trường</h3>
+    <pre><code>{
+  "weather": "mixed",
+  "timeofday": "mixed",
+  "scene": "city street",
+  "dataset": "bdd100k-example"
+}</code></pre>
+    <h3>Tạo annotation Ground Truth</h3>
+    <div class="grid">
+      <div class="mini"><strong>Cách chính xác nhất</strong><ol><li>Mở GT Job trong Jobs.</li><li>Reviewer chuyên nghiệp vẽ box và chọn đúng class.</li><li>Kiểm tra object nhỏ, bị che và ảnh tối.</li><li>Nhấn Save.</li></ol></div>
+      <div class="mini"><strong>Cách test nhanh</strong><ol><li>Mở GT Job.</li><li>Menu → Upload annotations.</li><li>Chọn COCO 1.0.</li><li>Upload <code>annotations_coco.zip</code>.</li><li>Nhấn Save.</li></ol></div>
     </div>
+    <h3>Validate Ground Truth</h3>
+    <p>Quay lại trang Model-assisted QC và nhấn <strong>Validate Ground Truth</strong>. Validator kiểm tra class hợp lệ, geometry, box vượt biên, box quá nhỏ hoặc trùng, frame không có box và một số quy tắc BDD100K.</p>
+    <table><tr><th>Kết quả</th><th>Ý nghĩa</th></tr><tr><td><code>passed</code></td><td>Không có vấn đề được phát hiện.</td></tr><tr><td><code>warning</code></td><td>Nên review nhưng vẫn có thể tiếp tục.</td></tr><tr><td><code>blocked</code></td><td>Phải sửa blocker rồi validate lại.</td></tr></table>
+    <div class="warn">Nếu hiển thị <code>0 boxes</code>, annotation chưa được import/vẽ hoặc chưa nhấn Save trong GT Job.</div>
+  </section>
 
-    <div class="toc">
-        <strong>Nội dung</strong>
-        <ol>
-            <li>Khởi động hệ thống</li>
-            <li>Tạo Task BDD100K</li>
-            <li>Kiểm thử Giai đoạn 1</li>
-            <li>Gán Ground Truth</li>
-            <li>Kiểm thử Giai đoạn 2</li>
-            <li>Kiểm tra kết quả và xử lý lỗi</li>
-        </ol>
-    </div>
+  <section class="phase" id="phase2">
+    <span class="badge">PHASE 2</span><h2>YOLO Evaluation</h2>
+    <pre><code>YOLO model path: /opt/cvat/evaluation-data/models/yolov8x.pt
+Confidence: 0.25
+IoU: 0.50</code></pre>
+    <ol>
+      <li>Đảm bảo GT đã có annotation và đã Save.</li>
+      <li>Nhấn <strong>Run evaluation on Ground Truth</strong>.</li>
+      <li>Chờ run chuyển từ <code>running</code> sang <code>completed</code>.</li>
+    </ol>
+    <table>
+      <tr><th>Kết quả</th><th>Ý nghĩa</th></tr>
+      <tr><td>mAP50 / mAP50–95</td><td>Chất lượng detection tổng thể của model trên GT.</td></tr>
+      <tr><td>Precision</td><td>Tỷ lệ prediction của model là đúng.</td></tr>
+      <tr><td>Recall</td><td>Tỷ lệ object GT được model tìm thấy.</td></tr>
+      <tr><td>Confusion matrix</td><td>Các class mà model thường nhầm lẫn.</td></tr>
+      <tr><td>Predictions</td><td>Box, class, confidence và provenance được lưu để Phase 3–6 sử dụng.</td></tr>
+    </table>
+    <div class="ok"><strong>Điều kiện đạt:</strong> YOLO evaluation history có ít nhất một run <code>completed</code>.</div>
+  </section>
 
-    <h2>1. Khởi động hệ thống</h2>
-    <p>Yêu cầu máy đã cài Docker Desktop và Docker Engine đang chạy.</p>
+  <section class="phase" id="phase3-6">
+    <span class="badge">PHASE 3–6</span><h2>QC tích hợp trong Annotation Workspace</h2>
+    <p>QC lấy prediction từ evaluation đã hoàn thành nhưng lấy annotation để kiểm tra từ <strong>đúng job đang mở</strong>. Vì vậy annotator phải nhấn <strong>Save</strong> trước khi chạy hoặc refresh QC.</p>
+    <h3>Chạy QC Assistant</h3>
+    <ol>
+      <li>Mở Annotation Job cần kiểm tra.</li>
+      <li>Nhấn <strong>Save</strong>.</li>
+      <li>Nhấn <strong>QC Assistant</strong>.</li>
+      <li>Nhấn <strong>Run / refresh QC detection</strong>.</li>
+    </ol>
+    <table>
+      <tr><th>Tình huống</th><th>Cảnh báo</th></tr>
+      <tr><td>YOLO và human box khớp vị trí, cùng class</td><td>Không tạo cảnh báo.</td></tr>
+      <tr><td>YOLO và human box khớp vị trí nhưng khác class</td><td><code>Wrong class</code>.</td></tr>
+      <tr><td>YOLO thấy object nhưng human chưa vẽ</td><td><code>Missing object</code>.</td></tr>
+      <tr><td>Human đã vẽ box nhưng YOLO không có prediction phù hợp</td><td><code>Verify human box</code>. Đây là bất đồng với model, chưa khẳng định human sai.</td></tr>
+    </table>
+    <h3>Hai nút trên thanh công cụ</h3>
+    <table>
+      <tr><th>Nút</th><th>Hành vi</th></tr>
+      <tr><td><strong>QC Assistant (n)</strong></td><td>Mở review queue tổng của tất cả frame; có tìm kiếm frame, risk score, trạng thái review và Quality metrics.</td></tr>
+      <tr><td><strong>Frame Errors (n)</strong></td><td>Mở toàn bộ lỗi của frame hiện tại và khoanh đỏ đồng thời tất cả vị trí lỗi ngay trên canvas.</td></tr>
+    </table>
+    <div class="info">Trong Frame Errors, nhấn từng dòng lỗi để focus riêng đúng bounding box. Với object đã có annotation, CVAT chọn object đó. Với Missing object, khung đỏ là prediction tạm thời và không được lưu thành annotation.</div>
+    <h3>Tìm kiếm và mở lỗi</h3>
+    <p>Trong QC Assistant có thể nhập <code>1</code>, <code>#1</code> hoặc <code>Frame 1</code>. Frame <code>0</code> là hợp lệ; nếu kết quả trống nghĩa là frame 0 không có alert đang hoạt động.</p>
+    <h3>Review an toàn</h3>
+    <table>
+      <tr><th>Thao tác</th><th>Ý nghĩa</th></tr>
+      <tr><td><strong>Confirm</strong></td><td>Reviewer xác nhận cảnh báo là lỗi thật.</td></tr>
+      <tr><td><strong>Reject</strong></td><td>Model/cảnh báo sai; giữ annotation hiện tại.</td></tr>
+      <tr><td><strong>Resolved</strong></td><td>Annotator đã sửa thủ công, Save và reviewer kiểm tra lại.</td></tr>
+    </table>
+    <div class="danger"><strong>Quy trình đúng:</strong> Confirm → đóng modal → sửa annotation thủ công → Save → mở lại QC → đánh dấu Resolved hoặc chạy refresh để tạo queue mới.</div>
+    <h3>Risk scoring và Quality metrics</h3>
+    <p>Alert được xếp hạng theo loại lỗi, confidence, IoU và độ tin cậy điều kiện. Risk score chỉ là mức ưu tiên review, không phải xác suất chắc chắn annotation sai. Tab <strong>Quality metrics</strong> hiển thị kết quả YOLO và benchmark QC đã xác minh.</p>
+  </section>
 
-    <h3>Máy mới clone project lần đầu</h3>
-    <pre><code>git clone &lt;repository-url&gt;
-cd cvat-UI
-docker compose up -d</code></pre>
+  <section id="e2e">
+    <h2>4. Kịch bản test end-to-end</h2>
+    <ol>
+      <li>Tạo Task bằng 50 ảnh BDD100K.</li>
+      <li>Tạo GT Job, import/vẽ annotation và Save.</li>
+      <li>Validate GT; xử lý blocker nếu có.</li>
+      <li>Chạy YOLO Evaluation đến khi <code>completed</code>.</li>
+      <li>Mở Annotation Job cần test.</li>
+      <li>Để nguyên một object đúng class.</li>
+      <li>Đổi class của một object đã vẽ để tạo lỗi Wrong class.</li>
+      <li>Xóa một box để tạo ứng viên Missing object.</li>
+      <li>Vẽ một box không đúng object để tạo ứng viên Verify human box.</li>
+      <li>Nhấn Save.</li>
+      <li>Mở QC Assistant và nhấn Run / refresh QC detection.</li>
+      <li>Kiểm tra queue tổng, tìm kiếm frame và mở từng lỗi.</li>
+      <li>Đóng modal, chuyển tới frame cần kiểm tra và nhấn Frame Errors.</li>
+      <li>Xác nhận tất cả lỗi của frame được khoanh đỏ đồng thời.</li>
+      <li>Confirm/Reject, sửa thủ công, Save rồi đánh dấu Resolved.</li>
+    </ol>
+    <div class="warn">Wrong class chỉ xuất hiện khi YOLO có prediction đủ confidence và box chồng với annotation theo ngưỡng IoU. Nếu model không phát hiện object, hệ thống chỉ có thể đưa ra Verify human box thay vì khẳng định class sai.</div>
+  </section>
 
-    <h3>Máy đã từng chạy phiên bản cũ</h3>
+  <section>
+    <h2>5. Checklist nghiệm thu</h2>
+    <ul class="check">
+      <li>Tất cả container ở trạng thái Up.</li><li>Task có đúng taxonomy BDD100K.</li><li>GT Job có annotation và đã Save.</li><li>Validate GT không còn blocker.</li><li>YOLO Evaluation completed và có metrics.</li><li>QC đọc annotation từ đúng job đang mở.</li><li>QC Assistant hiển thị queue tổng.</li><li>Frame Errors hiển thị đúng số lỗi frame hiện tại.</li><li>Tất cả lỗi frame được khoanh đỏ trên canvas.</li><li>Nhấn từng lỗi focus đúng box.</li><li>Confirm không tự sửa annotation.</li><li>Reject và Resolved cập nhật đúng trạng thái.</li>
+    </ul>
+    <h3>Chạy unit test</h3>
+    <pre><code>docker exec cvat_server python manage.py test cvat.apps.model_assisted_qc.tests --verbosity 1</code></pre>
+    <p>Kết quả hiện tại: <strong>35 tests — OK</strong>.</p>
+  </section>
+
+  <section id="errors">
+    <h2>6. Lỗi thường gặp</h2>
+    <table>
+      <tr><th>Hiện tượng</th><th>Cách xử lý</th></tr>
+      <tr><td>Task ở Queued quá lâu</td><td>Chạy <code>docker compose ps</code> và xem <code>docker logs --tail 100 cvat_worker_import</code>.</td></tr>
+      <tr><td>Validate báo 0 boxes</td><td>Mở GT Job, import/vẽ annotation, nhấn Save rồi Validate lại.</td></tr>
+      <tr><td>Không thấy QC Assistant hoặc Frame Errors</td><td>Build/pull UI mới, recreate container rồi nhấn <code>Ctrl + F5</code>.</td></tr>
+      <tr><td>QC yêu cầu evaluation</td><td>Chạy Phase 2 cho đúng Task và chờ trạng thái completed.</td></tr>
+      <tr><td>Vừa sửa annotation nhưng queue chưa đổi</td><td>Nhấn Save rồi chọn Run / refresh QC detection.</td></tr>
+      <tr><td>Frame Errors bằng 0</td><td>Frame hiện tại không có alert, hoặc queue chưa được chạy cho job đang mở.</td></tr>
+      <tr><td>Frame 0 không có kết quả</td><td>Frame 0 hợp lệ nhưng có thể không có alert vượt ngưỡng.</td></tr>
+      <tr><td>Wrong class thành Verify human box</td><td>YOLO không có prediction đủ confidence/IoU để chứng minh class khác; reviewer cần kiểm tra thủ công.</td></tr>
+      <tr><td>Lỗi Arial.ttf</td><td>Dùng server image mới có quyền ghi vào <code>/tmp/Ultralytics</code>.</td></tr>
+      <tr><td>502 khi evaluation</td><td>Kiểm tra RAM Docker và log <code>docker logs --tail 200 cvat_server</code>; cấu hình hiện tại dùng batch 1 và workers 0.</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. Build và chia sẻ cho đồng đội</h2>
+    <h3>Build local</h3>
+    <pre><code>docker compose stop
+docker build -t nhattruong19052005/cvat-yolo-server:latest -f Dockerfile .
+docker build -t nhattruong19052005/cvat-yolo-ui:latest -f Dockerfile.ui .
+docker compose up -d --force-recreate
+docker exec cvat_server python manage.py migrate</code></pre>
+    <h3>Đẩy Docker Hub</h3>
+    <pre><code>docker login
+docker push nhattruong19052005/cvat-yolo-server:latest
+docker push nhattruong19052005/cvat-yolo-ui:latest</code></pre>
+    <h3>Máy đồng đội</h3>
     <pre><code>git pull
 docker compose pull
 docker compose up -d --force-recreate</code></pre>
-
-    <p>Kiểm tra container:</p>
-    <pre><code>docker compose ps</code></pre>
-    <p>Các container quan trọng như <code>cvat_server</code>, <code>cvat_ui</code> và
-        <code>cvat_db</code> phải có trạng thái <span class="ok">Up</span>.</p>
-
-    <p>Kiểm tra migration:</p>
-    <pre><code>docker exec cvat_server python manage.py showmigrations yolo_evaluation</code></pre>
-    <p>Kết quả mong đợi:</p>
-    <pre><code>yolo_evaluation
- [X] 0001_initial
- [X] 0002_dataset_validation</code></pre>
-
-    <p>Kiểm tra model đã có trong custom image:</p>
-    <pre><code>docker exec cvat_server ls -lh /opt/cvat/evaluation-data/models/yolov8x.pt</code></pre>
-
-    <h2>2. Tạo Task BDD100K</h2>
-    <ol>
-        <li>Mở <a href="http://localhost:8080/tasks/create">http://localhost:8080/tasks/create</a>.</li>
-        <li>Đặt tên Task, ví dụ <code>BDD100K Evaluation Test</code>.</li>
-        <li>Upload ảnh từ thư mục <code>bdd100k_samples</code>.</li>
-        <li>Trong phần Labels, chọn chế độ Raw và paste JSON bên dưới.</li>
-    </ol>
-
-    <pre><code>[
-  {"name":"pedestrian","color":"#ef5350","type":"rectangle","attributes":[]},
-  {"name":"rider","color":"#ab47bc","type":"rectangle","attributes":[]},
-  {"name":"car","color":"#5c6bc0","type":"rectangle","attributes":[]},
-  {"name":"truck","color":"#29b6f6","type":"rectangle","attributes":[]},
-  {"name":"bus","color":"#26a69a","type":"rectangle","attributes":[]},
-  {"name":"train","color":"#66bb6a","type":"rectangle","attributes":[]},
-  {"name":"motorcycle","color":"#d4e157","type":"rectangle","attributes":[]},
-  {"name":"bicycle","color":"#ffa726","type":"rectangle","attributes":[]},
-  {"name":"traffic light","color":"#8d6e63","type":"rectangle","attributes":[]},
-  {"name":"traffic sign","color":"#78909c","type":"rectangle","attributes":[]}
-]</code></pre>
-
-    <div class="notice">
-        Thứ tự label quyết định class ID từ 0 đến 9. Không sắp xếp lại nếu model BDD100K của nhóm
-        cũng được train theo thứ tự này.
-    </div>
-
-    <h2>3. Kiểm thử Giai đoạn 1</h2>
-    <p>Mở trang chi tiết Task, ví dụ:</p>
-    <pre><code>http://localhost:8080/tasks/1</code></pre>
-    <p>Không mở trang <code>/tasks/1/jobs/1</code>, vì đó là màn hình annotation.</p>
-
-    <ol>
-        <li>Nhấn <strong>Dataset &amp; Evaluation</strong>.</li>
-        <li>Chọn <strong>Random uniform</strong>.</li>
-        <li>Nhập <strong>Number of frames</strong>: <code>5</code>.</li>
-        <li>Nhập <strong>Random seed</strong>: <code>42</code>.</li>
-        <li>Nhập metadata điều kiện.</li>
-    </ol>
-
-    <pre><code>{
-  "dataset": "BDD100K",
-  "split": "test",
-  "weather": "mixed",
-  "scene": "city street",
-  "time": "daytime"
-}</code></pre>
-
-    <p>Nhấn <strong>Create Ground Truth dataset</strong>.</p>
-    <div class="notice success">
-        Thành công khi trang hiển thị <code>GT Job #... — 5 frames</code> và Task xuất hiện Job có
-        nhãn <strong>Ground truth</strong>.
-    </div>
-
-    <h3>Ý nghĩa Random seed</h3>
-    <p>Cùng Task, số frame và seed sẽ tạo cùng tập frame. Đổi seed thường tạo tập frame khác.</p>
-    <pre><code>Seed 42  → [1, 4, 8]
-Seed 100 → [0, 5, 7]
-Seed 42  → [1, 4, 8]</code></pre>
-
-    <h2>4. Gán Ground Truth</h2>
-    <ol>
-        <li>Quay lại trang Task.</li>
-        <li>Mở Job có nhãn <strong>Ground truth</strong>.</li>
-        <li>Vẽ bounding box và chọn đúng label cho tất cả đối tượng cần đánh giá.</li>
-        <li>Kiểm tra đủ tất cả frame.</li>
-        <li>Nhấn <strong>Save</strong>.</li>
-    </ol>
-
-    <div class="notice warning">
-        Ground Truth phải được kiểm tra thủ công và chính xác. Annotation sai sẽ làm mAP, Precision,
-        Recall và confusion matrix sai theo.
-    </div>
-
-    <h3>Validate Ground Truth</h3>
-    <ol>
-        <li>Quay lại <strong>Dataset &amp; Evaluation</strong>.</li>
-        <li>Nhấn <strong>Validate Ground Truth</strong>.</li>
-        <li>Xem danh sách lỗi và nhấn <strong>Open frame</strong> để mở đúng frame cần sửa.</li>
-        <li>Sau khi sửa và Save annotation, nhấn <strong>Validate Ground Truth</strong> lại.</li>
-    </ol>
-    <p><code>blocked</code> chặn Giai đoạn 2; <code>warning</code> vẫn cho phép chạy evaluation.</p>
-
-    <h2>5. Kiểm thử Giai đoạn 2</h2>
-    <p>Mở lại trang <strong>Dataset &amp; Evaluation</strong> và nhập:</p>
-
-    <table>
-        <thead><tr><th>Trường</th><th>Giá trị kiểm thử</th><th>Ý nghĩa</th></tr></thead>
-        <tbody>
-            <tr>
-                <td>Model path</td>
-                <td><code>/opt/cvat/evaluation-data/models/yolov8x.pt</code></td>
-                <td>Model YOLO được đánh giá</td>
-            </tr>
-            <tr><td>Confidence</td><td><code>0.25</code></td><td>Loại prediction có độ tin cậy thấp hơn 25%</td></tr>
-            <tr><td>IoU</td><td><code>0.5</code></td><td>Ngưỡng chồng lấp dùng trong validation/NMS</td></tr>
-        </tbody>
-    </table>
-
-    <p>Nhấn <strong>Run evaluation on Ground Truth</strong>. Backend sẽ tự động:</p>
-    <ol>
-        <li>Export Ground Truth Job sang định dạng Ultralytics YOLO Detection.</li>
-        <li>Chạy validation và inference trên đúng các frame GT.</li>
-        <li>Tính mAP50, mAP50–95, Precision, Recall và confusion matrix.</li>
-        <li>Lưu bbox, class ID, confidence và tên ảnh của prediction.</li>
-        <li>Xóa dataset tạm sau khi hoàn tất.</li>
-    </ol>
-
-    <p>YOLOv8x chạy bằng CPU có thể mất vài phút. Không nhấn chạy nhiều lần trong khi request trước
-        vẫn đang xử lý.</p>
-
-    <h2>6. Kiểm tra kết quả</h2>
-    <p>Run thành công cần có:</p>
-    <ul>
-        <li>Status: <span class="ok">completed</span></li>
-        <li>mAP50 là giá trị số</li>
-        <li>Precision là giá trị số</li>
-        <li>Recall là giá trị số</li>
-    </ul>
-
-    <p>Kiểm tra metrics trực tiếp:</p>
-    <pre><code>docker exec cvat_server python manage.py shell -c "from cvat.apps.yolo_evaluation.models import EvaluationRun; r=EvaluationRun.objects.latest('id'); print(r.status); print(r.metrics); print(r.error)"</code></pre>
-
-    <p>Kiểm tra prediction:</p>
-    <pre><code>docker exec cvat_server python manage.py shell -c "from cvat.apps.yolo_evaluation.models import EvaluationRun; r=EvaluationRun.objects.latest('id'); print('Images:', len(r.predictions)); print(r.predictions[:1])"</code></pre>
-
-    <h2>7. Xử lý lỗi thường gặp</h2>
-    <table>
-        <thead><tr><th>Lỗi</th><th>Cách kiểm tra</th></tr></thead>
-        <tbody>
-            <tr>
-                <td>No installed app with label <code>yolo_evaluation</code></td>
-                <td>Chạy <code>docker compose pull</code> rồi recreate container.</td>
-            </tr>
-            <tr>
-                <td>Không thấy nút Dataset &amp; Evaluation</td>
-                <td>Mở trang <code>/tasks/{id}</code>, hard refresh bằng Ctrl+Shift+R.</td>
-            </tr>
-            <tr>
-                <td>Model path does not exist</td>
-                <td>Kiểm tra model bằng lệnh <code>ls</code> ở bước 1.</td>
-            </tr>
-            <tr>
-                <td>Run có status failed</td>
-                <td>Xem trường Error trên dashboard và log backend.</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <pre><code>docker logs cvat_server --tail 300</code></pre>
-
-    <div class="notice danger">
-        Không sử dụng metrics từ <code>yolov8x.pt</code> COCO làm kết luận chính thức cho BDD100K.
-        Để đánh giá đúng, thay model path bằng file <code>best.pt</code> đã fine-tune trên cùng 10 class
-        và cùng thứ tự class của Task.
-    </div>
+    <p>Model YOLOv8x và dependency backend đã nằm trong server image tùy chỉnh. Đồng đội không cần tải model thủ công nếu compose đang dùng đúng image trên.</p>
+  </section>
 </main>
+<footer>Model-assisted Annotation QC · <a href="OVERVIEW.html">Mở trang tổng quan</a></footer>
 </body>
 </html>

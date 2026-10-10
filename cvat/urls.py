@@ -27,7 +27,7 @@ urlpatterns = [
     path("", include("cvat.apps.engine.urls")),
     path("", include("cvat.apps.redis_handler.urls")),
     path("django-rq/", include("django_rq.urls")),
-    path("api/yolo-evaluation/", include("cvat.apps.yolo_evaluation.urls")),
+    path("api/model-assisted-qc/", include("cvat.apps.model_assisted_qc.urls")),
 ]
 
 if apps.is_installed("cvat.apps.log_viewer"):

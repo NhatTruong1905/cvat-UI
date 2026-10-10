@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tổng quan những chức năng đã triển khai — Model-assisted QC</title>
+  <style>
+    :root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#647084;--line:#dbe3ef;--blue:#2563eb;--navy:#0f172a;--green:#15803d;--orange:#b45309}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 Inter,Segoe UI,Arial,sans-serif}
+    header{padding:58px 22px;background:linear-gradient(130deg,#0f172a,#1e40af);color:white}header>div,main{max-width:1120px;margin:auto}
+    h1{font-size:38px;line-height:1.18;margin:7px 0 12px}h2{font-size:26px;margin:0 0 16px}h3{font-size:20px;margin:0 0 10px}.lead{font-size:18px;max-width:850px;color:#dbeafe}
+    nav{position:sticky;top:0;z-index:5;padding:12px;text-align:center;background:white;border-bottom:1px solid var(--line)}nav a{margin:0 10px;color:var(--blue);text-decoration:none;font-weight:800}
+    main{padding:30px 18px 70px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:23px;margin-bottom:20px;box-shadow:0 6px 20px #0f172a0a}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}.phase{position:relative;padding-top:63px;border-top:5px solid var(--blue)}
+    .number{position:absolute;top:17px;left:22px;background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:7px;font-weight:900}.done{position:absolute;top:20px;right:20px;color:var(--green);font-weight:800}
+    .label{font-weight:800;color:#334155}.output{background:#eef6ff;border-radius:9px;padding:12px;margin-top:13px}.important{background:#fff8e7;border-left:5px solid var(--orange);padding:15px;border-radius:8px}.safe{background:#ecf9f0;border-left:5px solid var(--green);padding:15px;border-radius:8px}
+    table{width:100%;border-collapse:collapse}th,td{border:1px solid var(--line);padding:11px;text-align:left;vertical-align:top}th{background:#edf2f9}code{background:#e8edf5;padding:2px 5px;border-radius:4px}.flow{display:flex;align-items:center;gap:8px;overflow:auto;padding:10px 0}.step{min-width:145px;text-align:center;padding:12px;background:#f8fafc;border:1px solid var(--line);border-radius:9px;font-weight:700}.arrow{font-size:22px;color:var(--blue)}.muted{color:var(--muted)}ul{padding-left:21px}li{margin:5px 0}footer{text-align:center;color:var(--muted);padding:25px}
+  </style>
+</head>
+<body>
+<header><div>
+  <div style="font-weight:900;letter-spacing:.12em;color:#93c5fd">PROJECT OVERVIEW</div>
+  <h1>Model-assisted QC<br>Những chức năng chính đã triển khai</h1>
+  <p class="lead">Dự án mở rộng CVAT thành quy trình kiểm soát chất lượng annotation từ khâu tạo Ground Truth, đánh giá YOLO, tìm vật thể bị sót/sai class, ưu tiên review, lưu quyết định con người đến đo hiệu quả QC.</p>
+</div></header>
+<nav><a href="#summary">Tổng quan</a><a href="#phases">6 Phase</a><a href="#architecture">Kiến trúc</a><a href="HUONG_DAN.html">Hướng dẫn test</a></nav>
+<main>
+  <section class="card" id="summary">
+    <h2>Tổng quan kết quả đã làm</h2>
+    <p>Hệ thống hiện đã có luồng hoàn chỉnh từ <strong>Phase 1 đến Phase 6</strong>. YOLOv8x pretrained được dùng làm nguồn prediction hỗ trợ tìm annotation đáng nghi; prediction không được xem là Ground Truth.</p>
+    <div class="flow"><div class="step">Tạo &amp; kiểm tra GT</div><div class="arrow">→</div><div class="step">YOLO inference</div><div class="arrow">→</div><div class="step">Tìm lỗi QC</div><div class="arrow">→</div><div class="step">Xếp hạng risk</div><div class="arrow">→</div><div class="step">Reviewer xử lý</div><div class="arrow">→</div><div class="step">Đo KPI</div></div>
+    <div class="safe"><strong>Nguyên tắc an toàn đã áp dụng:</strong> hệ thống chỉ tạo cảnh báo. Confirm, Reject hay Resolved chỉ cập nhật alert và audit log; không có endpoint tự động thêm, xóa hoặc đổi annotation CVAT.</div>
+  </section>
+
+  <section id="phases"><h2>Những gì đã triển khai trong từng Phase</h2><div class="grid">
+    <article class="card phase"><span class="number">PHASE 1</span><span class="done">ĐÃ LÀM</span><h3>Dataset &amp; Ground Truth</h3>
+      <p class="label">Các chức năng chính:</p><ul><li>Tạo Ground Truth Job bằng cơ chế native của CVAT.</li><li>Chọn frame ngẫu nhiên có seed hoặc nhập danh sách frame thủ công.</li><li>Lưu metadata điều kiện như weather, time of day và scene.</li><li>Đọc/chuẩn hóa annotation BDD100K và mapping taxonomy 10 class.</li><li>Sampling phân tầng và chia calibration/held-out theo sequence để giảm leakage.</li><li>Validate label, geometry, bounds, box nhỏ/trùng, frame trống và rider association.</li><li>Tạo lỗi synthetic trên bản sao, có manifest before/after và error ID.</li></ul>
+      <div class="output"><strong>Đầu ra:</strong> GT Job, sampled frames, condition metadata, validation report và synthetic-error manifest có thể tái lập.</div>
+    </article>
+
+    <article class="card phase"><span class="number">PHASE 2</span><span class="done">ĐÃ LÀM</span><h3>YOLO Reliability Evaluation</h3>
+      <p class="label">Các chức năng chính:</p><ul><li>Export tự động Ground Truth Job sang Ultralytics YOLO format.</li><li>Chạy YOLOv8x validation và inference trên đúng tập GT.</li><li>Tính mAP50, mAP50–95, Precision, Recall và confusion matrix.</li><li>Lưu prediction theo ảnh gồm bounding box, class ID, class name và confidence.</li><li>Lưu provenance: model path, SHA-256 weights, confidence, NMS IoU, backend và schema version.</li><li>Tạo cache key; cùng model/dataset/config sẽ tái sử dụng run đã hoàn tất.</li></ul>
+      <div class="output"><strong>Đầu ra:</strong> EvaluationRun chứa metrics, predictions và thông tin truy vết model/config.</div>
+    </article>
+
+    <article class="card phase"><span class="number">PHASE 3</span><span class="done">ĐÃ LÀM</span><h3>Condition, Threshold &amp; QC Detection</h3>
+      <p class="label">Các chức năng chính:</p><ul><li>Chạy grid tối đa 25 tổ hợp Confidence × IoU.</li><li>Chọn cấu hình tốt nhất theo mAP, Precision, Recall hoặc F1.</li><li>Tổng hợp hiệu năng model theo condition metadata.</li><li>Validate box, bỏ prediction không hợp lệ/không map và deduplicate prediction.</li><li>Tính IoU matrix và Hungarian matching một-một, class-agnostic.</li><li>Phát hiện <code>POSSIBLE_MISSING_OBJECT</code> và <code>POSSIBLE_WRONG_CLASS</code>.</li><li>Không coi annotation không được YOLO match là lỗi vì model cũng có thể bỏ sót.</li></ul>
+      <div class="output"><strong>Đầu ra:</strong> threshold analysis theo condition và danh sách QC candidate có prediction, annotation, IoU, reason codes.</div>
+    </article>
+
+    <article class="card phase"><span class="number">PHASE 4</span><span class="done">ĐÃ LÀM</span><h3>Risk Scoring &amp; Review Prioritization</h3>
+      <p class="label">Các chức năng chính:</p><ul><li>Lọc theo confidence tối thiểu và suppression prediction trùng.</li><li>Tính risk score từ confidence, match IoU và condition reliability.</li><li>Lưu score breakdown để reviewer hiểu lý do xếp hạng.</li><li>Sắp xếp deterministic theo risk, frame và loại lỗi.</li><li>Tạo review queue từ EvaluationRun đã hoàn tất.</li><li>Dùng stable key và unique constraint để chạy lại không nhân đôi alert.</li><li>Hiển thị link mở đúng frame CVAT.</li></ul>
+      <div class="output"><strong>Đầu ra:</strong> QCAlert queue được lưu database và xếp theo mức ưu tiên review.</div>
+    </article>
+
+    <article class="card phase"><span class="number">PHASE 5</span><span class="done">ĐÃ LÀM</span><h3>Human-in-the-loop Review</h3>
+      <p class="label">Các chức năng chính:</p><ul><li>Hiển thị type, risk, prediction class, annotation class, confidence và frame.</li><li>Cho reviewer Confirm hoặc Reject cảnh báo.</li><li>Chỉ cảnh báo Confirmed mới có thể chuyển thành Resolved.</li><li>State machine bảo vệ luồng Pending, In Review, Confirmed, Rejected, Resolved.</li><li>Mỗi thao tác tạo ReviewDecision riêng thay vì ghi đè lịch sử.</li><li>Lưu reviewer, timestamp, notes và trạng thái trước/sau.</li><li>Annotator vẫn chỉnh box/class thủ công trong CVAT.</li></ul>
+      <div class="output"><strong>Đầu ra:</strong> quyết định review có audit trail đầy đủ, không mất lịch sử và không tự sửa annotation.</div>
+    </article>
+
+    <article class="card phase"><span class="number">PHASE 6</span><span class="done">ĐÃ LÀM</span><h3>QC Benchmark &amp; Reporting</h3>
+      <p class="label">Các chức năng chính:</p><ul><li>Nhận verified-error manifest gồm error ID, type, frame và source.</li><li>Tính QC Precision và QC Recall.</li><li>Tính Precision@K cho các ngân sách review khác nhau.</li><li>Báo cáo riêng Missing-object và Wrong-class.</li><li>So sánh ba chiến lược Random, Unranked và Risk-ranked.</li><li>Dùng seed cố định để baseline random có thể tái lập.</li><li>Xử lý tập rỗng, top-K lớn hơn số alert và tránh chia cho 0.</li></ul>
+      <div class="output"><strong>Đầu ra:</strong> QCBenchmark report được lưu database với seed, top-K, manifest và toàn bộ metrics.</div>
+    </article>
+  </div></section>
+
+  <section class="card" id="architecture">
+    <h2>Kiến trúc đã tổ chức</h2>
+    <table><tr><th>Thành phần</th><th>Vai trò đã triển khai</th></tr>
+      <tr><td><code>phase1_dataset_ground_truth/</code></td><td>Sampling, BDD100K loader/mapping, tạo GT Job, validation và synthetic corruption.</td></tr>
+      <tr><td><code>phase2_yolo_evaluation/</code></td><td>Ultralytics adapter, inference, detection metrics, prediction storage, provenance và cache.</td></tr>
+      <tr><td><code>phase3_condition_threshold/</code></td><td>Threshold experiments, condition summary, IoU/Hungarian và QC detection rules.</td></tr>
+      <tr><td><code>phase4_risk_review/</code></td><td>Risk scoring, deterministic ranking và idempotent queue generation.</td></tr>
+      <tr><td><code>phase5_human_review/</code></td><td>Review state machine, API decision và audit workflow.</td></tr>
+      <tr><td><code>phase6_benchmark/</code></td><td>QC metrics, type slices và baseline comparison.</td></tr>
+      <tr><td><code>model-assisted-qc-page/</code></td><td>Một trang CVAT cho toàn bộ thao tác Phase 1–6.</td></tr>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Các entity dữ liệu chính đã thêm</h2>
+    <table><tr><th>Entity</th><th>Dữ liệu được lưu</th></tr><tr><td><code>DatasetConfiguration</code></td><td>GT Job, sampling, frame, condition và kết quả validate.</td></tr><tr><td><code>EvaluationRun</code></td><td>Model/config, metrics, predictions, provenance, cache key và status.</td></tr><tr><td><code>ThresholdAnalysis</code></td><td>Lưới threshold, condition, results và best result.</td></tr><tr><td><code>QCAlert</code></td><td>Run, frame, prediction/annotation snapshot, IoU, risk, reason và status.</td></tr><tr><td><code>ReviewDecision</code></td><td>Reviewer, decision, notes, thời gian và trạng thái trước/sau.</td></tr><tr><td><code>QCBenchmark</code></td><td>Verified errors, seed, top-K và benchmark metrics.</td></tr></table>
+  </section>
+
+  <section class="card">
+    <h2>Kiểm thử và trạng thái hiện tại</h2>
+    <ul><li><strong>29 unit tests</strong> backend đã pass.</li><li>Test bao phủ sampling/split deterministic, immutable corruption, cache provenance, IoU/Hungarian, missing/wrong-class, duplicate, invalid/unmapped box, ranking, review transitions và benchmark edge cases.</li><li>Migration database đã được kiểm tra và áp dụng.</li><li>Production build của CVAT UI đã thành công.</li><li>Các container CVAT đang chạy bằng Docker Compose.</li></ul>
+    <div class="important"><strong>Phần có thể nâng cấp tiếp:</strong> threshold riêng theo class/condition, background job queue cho inference dài, CSV/CLI report, reviewer-time KPI, confidence interval và luồng sửa annotation có xác nhận rõ ràng. Những phần này không ảnh hưởng luồng P0 hiện tại.</div>
+  </section>
+
+  <section class="card"><h2>Kết luận</h2><p>Dự án hiện không chỉ đánh giá YOLO bằng mAP. Nó đã trở thành một pipeline QC có thể truy vết: chuẩn bị GT → tạo prediction → phát hiện lỗi nghi vấn → ưu tiên review → lưu quyết định con người → đo hiệu quả bằng benchmark.</p><p><a href="HUONG_DAN.html"><strong>Mở hướng dẫn test chi tiết từ Phase 1 đến Phase 6 →</strong></a></p></section>
+</main>
+<footer>Model-assisted Annotation QC · Tổng quan các chức năng đã triển khai</footer>
+</body>
+</html>

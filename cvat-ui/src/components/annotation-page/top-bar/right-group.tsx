@@ -20,6 +20,7 @@ import { Workspace } from 'reducers';
 
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
+import QCAssistant from './qc-assistant';
 
 interface Props {
     showStatistics(): void;
@@ -29,6 +30,8 @@ interface Props {
     workspace: Workspace;
     annotationFilters: object[];
     initialOpenGuide: boolean;
+    currentFrame: number;
+    onSelectQCFrame(frame: number): void;
 }
 
 function RightGroup(props: Props): JSX.Element {
@@ -40,6 +43,8 @@ function RightGroup(props: Props): JSX.Element {
         jobInstance,
         annotationFilters,
         initialOpenGuide,
+        currentFrame,
+        onSelectQCFrame,
     } = props;
 
     const filters = annotationFilters.length;
@@ -107,6 +112,11 @@ function RightGroup(props: Props): JSX.Element {
 
     return (
         <Col className='cvat-annotation-header-right-group'>
+            <QCAssistant
+                jobInstance={jobInstance}
+                currentFrame={currentFrame}
+                onSelectFrame={onSelectQCFrame}
+            />
             <Button
                 type='link'
                 className='cvat-annotation-header-fullscreen-button cvat-annotation-header-button'
